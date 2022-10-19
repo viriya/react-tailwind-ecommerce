@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useContext } from "react";
+import { Routes, Route } from "react-router-dom";
+import axios from "axios";
+import Navbar from "./components/navbar2";
+import { ProductContext } from "./context/product.context";
+import Home from "./pages/home";
+import ProductItem from "./components/product_item";
 
-function App() {
+const App = () => {
+  const { data, dispatch } = useContext(ProductContext);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        dispatch({ type: "FETCHING" });
+        const resp = await axios.get("https://dummyjson.com/products");
+        dispatch({ type: "FETCH_SUCCESS", payload: resp.data.products });
+      } catch (e) {
+        dispatch({ type: "FETCH_FAIL", payload: e.message });
+      }
+    };
+    fetch();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="product/:id" element={<ProductItem />} />
+      </Routes>
+    </>
   );
-}
+};
 
 export default App;
